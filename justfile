@@ -19,7 +19,7 @@
 
 # sets up a project to be used for the first time
 @setup:
-    echo "TODO: setup"
+    just bootstrap
 
 # runs tests
 @test:
