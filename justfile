@@ -24,7 +24,14 @@
 # runs tests
 @test:
     echo "TODO: test"
+    black --check .
 
 # updates a project to run at its current version
 @update:
     echo "TODO: update"
+
+# ----
+
+@fmt:
+    black .
+    pyup-dirs .
