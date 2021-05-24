@@ -89,6 +89,7 @@ def status():
         )
         print(response.status_code)
         results = response.json()["results"]
+        rprint(f"YOU HAVE {len(results)} RESULTS:")
         for result in results:
             rprint(result)
 
