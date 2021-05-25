@@ -4,6 +4,7 @@ import requests
 from requests.auth import AuthBase, HTTPBasicAuth
 from rich import print as rprint
 from rich.console import Console
+from rich.progress import track
 from rich.table import Table
 import time
 
@@ -132,7 +133,10 @@ def status():
         rprint(
             f"YOU HAVE {len(results_data)} RESULTS\nPress [bold cyan]SPACE[/bold cyan] for next page of results\nPress [bold cyan]Q[/bold cyan] to quit."
         )
-        time.sleep(5)
+        # Giving user time to read instructions & an idea when they'll see results
+        for increment in track(range(5), description="Preparing to show results..."):
+            time.sleep(increment)
+
         with console.pager():
             console.print(results_table)
     except requests.exceptions.ConnectionError as e:
