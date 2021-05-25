@@ -91,13 +91,11 @@ def status():
         )
         print(response.status_code)
         results = response.json()["results"]
+        results_data = [result["job_data"] for result in results]
         rprint(f"YOU HAVE {len(results)} RESULTS. \nPress SPACE for next page of results\nPress Q to quit.")
         time.sleep(5)
         with console.pager():
-            console.print(results)
-        # for result in results:
-        #     rprint(result)
-
+            console.print(results_data)
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
 
