@@ -131,10 +131,14 @@ def status():
         ]
         results_table = build_status_output_table(results_data)
         rprint(
-            f"YOU HAVE {len(results_data)} RESULTS\nPress [bold cyan]SPACE[/bold cyan] for next page of results\nPress [bold cyan]Q[/bold cyan] to quit."
+            f"""YOU HAVE {len(results_data)} RESULTS
+                \n[bright_green]WHEN RESULTS DISPLAY:[/bright_green]
+                \nPress [bold cyan]SPACE[/bold cyan] for next page of results
+                \nPress [bold cyan]Q[/bold cyan] to quit.
+            """
         )
         # Giving user time to read instructions & an idea when they'll see results
-        for increment in track(range(5), description="Preparing to show results..."):
+        for increment in track(range(5), description="PREPARING TO SHOW RESULTS..."):
             time.sleep(increment)
 
         with console.pager():
