@@ -78,7 +78,7 @@ def build_status_output_table(results_data):
     Take list of dictionaries built from Job.data objects
     Create Rich.Table that can be paginated in status() command
     """
-    table = Table("QSTAT Results")
+    table = Table(title="QSTAT Results")
     table.add_column("job-ID")
     table.add_column("prior")
     table.add_column("name")
