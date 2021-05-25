@@ -4,6 +4,7 @@ import requests
 from requests.auth import AuthBase, HTTPBasicAuth
 from rich import print as rprint
 from rich.console import Console
+from rich.table import Table
 import time
 
 SCC_API_TOKEN = os.environ.get("SCC_API_TOKEN")
@@ -72,6 +73,37 @@ def delete(job_id):
     except Exception as e:
         click.secho(f"{e}", fg="red")
 
+def build_status_output_table(results_data):
+    """
+    Take list of dictionaries built from Job.data objects
+    Create Rich.Table that can be paginated in status() command
+    """
+    table = Table("QSTAT Results")
+    table.add_column("job-ID")
+    table.add_column("prior")
+    table.add_column("name")
+    table.add_column("user")
+    table.add_column("state")
+    table.add_column("submit-start-at")
+    table.add_column("queue")
+    table.add_column("slots")
+    table.add_column("ja-task-ID")
+
+    for result in results_data:
+        # rprint(result)
+        table.add_row(
+            result["job-ID"],
+            result["prior"],
+            result["name"],
+            result["user"],
+            result["state"],
+            result["submit-start-at"],
+            result["queue"],
+            result.get("slots"),
+            result.get("ja-task-ID"),
+        )
+
+    return table
 
 @cli.command()
 def status():
@@ -91,11 +123,17 @@ def status():
         )
         print(response.status_code)
         results = response.json()["results"]
-        results_data = [result["job_data"] for result in results]
-        rprint(f"YOU HAVE {len(results)} RESULTS. \nPress SPACE for next page of results\nPress Q to quit.")
+        # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
+        results_data = [
+            result["job_data"]
+            for result in results
+            if result["job_data"] != {}
+        ]
+        results_table = build_status_output_table(results_data)
+        rprint(f"YOU HAVE {len(results_data)} RESULTS. \nPress SPACE for next page of results\nPress Q to quit.")
         time.sleep(5)
         with console.pager():
-            console.print(results_data)
+            console.print(results_table)
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
 
