@@ -75,8 +75,8 @@ def delete(job_id):
 
 def build_status_output_table(results_data):
     """
-    Take list of dictionaries built from Job.data objects
-    Create Rich.Table that can be paginated in status() command
+    Take list of dictionaries built from Job.job_data objects
+    Return Rich.Table to be paginated in status() command
     """
     table = Table(title="QSTAT Results")
     table.add_column("job-ID")
@@ -112,7 +112,6 @@ def status():
     Draws data from Django app
     Django app updated from SCC, via scheduled_poll_job Celery task
     """
-    click.echo("status")
     data = {}
     console = Console()
     try:
@@ -121,7 +120,7 @@ def status():
             data=data,
             auth=get_auth(),
         )
-        print(response.status_code)
+        # print(response.status_code)
         results = response.json()["results"]
         # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
         results_data = [
@@ -130,7 +129,7 @@ def status():
             if result["job_data"] != {}
         ]
         results_table = build_status_output_table(results_data)
-        rprint(f"YOU HAVE {len(results_data)} RESULTS. \nPress SPACE for next page of results\nPress Q to quit.")
+        rprint(f"YOU HAVE {len(results_data)} RESULTS. \nPress [bold cyan]SPACE[/bold cyan] for next page of results\nPress [bold cyan]Q[/bold cyan] to quit.")
         time.sleep(5)
         with console.pager():
             console.print(results_table)
