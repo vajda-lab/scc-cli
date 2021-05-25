@@ -73,6 +73,7 @@ def delete(job_id):
     except Exception as e:
         click.secho(f"{e}", fg="red")
 
+
 def build_status_output_table(results_data):
     """
     Take list of dictionaries built from Job.job_data objects
@@ -105,6 +106,7 @@ def build_status_output_table(results_data):
 
     return table
 
+
 @cli.command()
 def status():
     """
@@ -124,12 +126,12 @@ def status():
         results = response.json()["results"]
         # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
         results_data = [
-            result["job_data"]
-            for result in results
-            if result["job_data"] != {}
+            result["job_data"] for result in results if result["job_data"] != {}
         ]
         results_table = build_status_output_table(results_data)
-        rprint(f"YOU HAVE {len(results_data)} RESULTS. \nPress [bold cyan]SPACE[/bold cyan] for next page of results\nPress [bold cyan]Q[/bold cyan] to quit.")
+        rprint(
+            f"YOU HAVE {len(results_data)} RESULTS\nPress [bold cyan]SPACE[/bold cyan] for next page of results\nPress [bold cyan]Q[/bold cyan] to quit."
+        )
         time.sleep(5)
         with console.pager():
             console.print(results_table)
