@@ -3,7 +3,8 @@ import os
 import requests
 from requests.auth import AuthBase, HTTPBasicAuth
 from rich import print as rprint
-
+from rich.console import Console
+import time
 
 SCC_API_TOKEN = os.environ.get("SCC_API_TOKEN")
 SCC_API_URL = os.environ.get("SCC_API_URL", "http://ftplus.bu.edu:8000/apis/")
@@ -81,6 +82,7 @@ def status():
     """
     click.echo("status")
     data = {}
+    console = Console()
     try:
         response = requests.get(
             f"{SCC_API_URL}jobs/",
@@ -89,9 +91,12 @@ def status():
         )
         print(response.status_code)
         results = response.json()["results"]
-        rprint(f"YOU HAVE {len(results)} RESULTS:")
-        for result in results:
-            rprint(result)
+        rprint(f"YOU HAVE {len(results)} RESULTS. \nPress SPACE for next page of results\nPress Q to quit.")
+        time.sleep(5)
+        with console.pager():
+            console.print(results)
+        # for result in results:
+        #     rprint(result)
 
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
