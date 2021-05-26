@@ -92,7 +92,6 @@ def build_status_output_table(results_data):
     table.add_column("ja-task-ID")
 
     for result in results_data:
-        # rprint(result)
         table.add_row(
             result["job-ID"],
             result["prior"],
@@ -123,7 +122,6 @@ def status():
             data=data,
             auth=get_auth(),
         )
-        # print(response.status_code)
         results = response.json()["results"]
         # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
         results_data = [
