@@ -4,6 +4,8 @@ import requests
 from requests.auth import AuthBase, HTTPBasicAuth
 from rich import print as rprint
 from rich.console import Console
+from rich.progress import track
+from rich.table import Table
 import time
 
 SCC_API_TOKEN = os.environ.get("SCC_API_TOKEN")
@@ -73,6 +75,38 @@ def delete(job_id):
         click.secho(f"{e}", fg="red")
 
 
+def build_status_output_table(results_data):
+    """
+    Take list of dictionaries built from Job.job_data objects
+    Return Rich.Table to be paginated in status() command
+    """
+    table = Table(title="QSTAT Results")
+    table.add_column("job-ID")
+    table.add_column("prior")
+    table.add_column("name")
+    table.add_column("user")
+    table.add_column("state")
+    table.add_column("submit-start-at")
+    table.add_column("queue")
+    table.add_column("slots")
+    table.add_column("ja-task-ID")
+
+    for result in results_data:
+        table.add_row(
+            result["job-ID"],
+            result["prior"],
+            result["name"],
+            result["user"],
+            result["state"],
+            result["submit-start-at"],
+            result["queue"],
+            result.get("slots"),
+            result.get("ja-task-ID"),
+        )
+
+    return table
+
+
 @cli.command()
 def status():
     """
@@ -80,7 +114,6 @@ def status():
     Draws data from Django app
     Django app updated from SCC, via scheduled_poll_job Celery task
     """
-    click.echo("status")
     data = {}
     console = Console()
     try:
@@ -89,13 +122,25 @@ def status():
             data=data,
             auth=get_auth(),
         )
-        print(response.status_code)
         results = response.json()["results"]
-        results_data = [result["job_data"] for result in results]
-        rprint(f"YOU HAVE {len(results)} RESULTS. \nPress SPACE for next page of results\nPress Q to quit.")
-        time.sleep(5)
+        # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
+        results_data = [
+            result["job_data"] for result in results if result["job_data"] != {}
+        ]
+        results_table = build_status_output_table(results_data)
+        rprint(
+            f"""YOU HAVE {len(results_data)} RESULTS
+                \n[bright_green]WHEN RESULTS DISPLAY:[/bright_green]
+                \nPress [bold cyan]SPACE[/bold cyan] for next page of results
+                \nPress [bold cyan]Q[/bold cyan] to quit.
+            """
+        )
+        # Giving user time to read instructions & an idea when they'll see results
+        for increment in track(range(5), description="PREPARING TO SHOW RESULTS..."):
+            time.sleep(increment)
+
         with console.pager():
-            console.print(results_data)
+            console.print(results_table)
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
 
