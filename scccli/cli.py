@@ -157,11 +157,11 @@ def test_token():
 
     # w/o a password or token, this should fail/error
     # export SCC_API_PASSWORD=whut?
-    rprint(SCC_API_PASSWORD)
-    if SCC_API_TOKEN:
-        rprint(f"SCC_API_TOKEN exists but it's a SECRET")
-    else:
-        rprint(f"No Token, No Auth")
+    # del SCC_API_TOKEN
+    # if SCC_API_TOKEN is not None:
+    #     rprint(f"SCC_API_TOKEN exists but it's a SECRET")
+    # else:
+    #     rprint(f"No Token, No Auth")
     try:
         response = requests.get(
             f"{SCC_API_URL}jobs/",
@@ -169,10 +169,11 @@ def test_token():
         )
         rprint(f"RESPONSE{response}")
         results = response.json()["results"]
+        show_length = 3
         rprint(
-            f"""YOU HAVE {len(results)} RESULTS"""
+            f"YOU HAVE {len(results)} RESULTS. Showing {show_length}"
         )
-        for result in results:
+        for result in results[:show_length]:
             rprint(result)
 
     except requests.exceptions.ConnectionError as e:
