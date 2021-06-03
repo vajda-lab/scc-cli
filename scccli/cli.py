@@ -29,6 +29,7 @@ class TokenAuth(AuthBase):
 def get_auth():
 
     if SCC_API_TOKEN:
+        print("We Have A Token")
         return TokenAuth(SCC_API_TOKEN)
     elif SCC_API_USER and SCC_API_PASSWORD:
         return HTTPBasicAuth(SCC_API_USER, SCC_API_PASSWORD)
@@ -141,6 +142,39 @@ def status():
 
         with console.pager():
             console.print(results_table)
+    except requests.exceptions.ConnectionError as e:
+        click.secho(f"{e}", fg="red")
+
+
+@cli.command()
+def test_token():
+    """
+    Testing token auth working
+    Prettier than curl
+    Kojo practicing Click
+    """
+    data = {}
+
+    # w/o a password or token, this should fail/error
+    # export SCC_API_PASSWORD=whut?
+    rprint(SCC_API_PASSWORD)
+    if SCC_API_TOKEN:
+        rprint(f"SCC_API_TOKEN exists but it's a SECRET")
+    else:
+        rprint(f"No Token, No Auth")
+    try:
+        response = requests.get(
+            f"{SCC_API_URL}jobs/",
+            auth=get_auth(),
+        )
+        rprint(f"RESPONSE{response}")
+        results = response.json()["results"]
+        rprint(
+            f"""YOU HAVE {len(results)} RESULTS"""
+        )
+        for result in results:
+            rprint(result)
+
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
 
