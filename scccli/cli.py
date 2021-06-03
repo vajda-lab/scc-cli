@@ -22,7 +22,8 @@ class TokenAuth(AuthBase):
 
     def __call__(self, request):
         """Attach an API token to a custom auth header."""
-        request.headers["X-TokenAuth"] = f"{self.token}"
+        request.headers["Authorization"] = f"Token {self.token}"
+        # request.headers["WWW-Authenticate"] = f"{self.token}"
         return request
 
 
@@ -122,12 +123,15 @@ def status():
             data=data,
             auth=get_auth(),
         )
+        # Debugging print
         results = response.json()["results"]
         # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
         results_data = [
             result["job_data"] for result in results if result["job_data"] != {}
         ]
         results_table = build_status_output_table(results_data)
+
+        # Usage instructions
         rprint(
             f"""YOU HAVE {len(results_data)} RESULTS
                 \n[bright_green]WHEN RESULTS DISPLAY:[/bright_green]
@@ -135,12 +139,42 @@ def status():
                 \nPress [bold cyan]Q[/bold cyan] to quit.
             """
         )
+
+        # ToDo: include option to SKIP instructions
+        # rich.prompt or console.input
+        
         # Giving user time to read instructions & an idea when they'll see results
         for increment in track(range(5), description="PREPARING TO SHOW RESULTS..."):
             time.sleep(increment)
 
         with console.pager():
             console.print(results_table)
+    except requests.exceptions.ConnectionError as e:
+        click.secho(f"{e}", fg="red")
+
+
+@cli.command()
+def test_token():
+    """
+    Testing token auth working
+    Prettier than curl
+    Kojo practicing Click
+    """
+    data = {}
+
+    try:
+        response = requests.get(
+            f"{SCC_API_URL}jobs/",
+            auth=get_auth(),
+        )
+        results = response.json()["results"]
+        show_length = 3
+        rprint(
+            f"YOU HAVE {len(results)} RESULTS. Showing {show_length}"
+        )
+        for result in results[:show_length]:
+            rprint(result)
+
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
 
