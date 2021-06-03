@@ -22,7 +22,7 @@ class TokenAuth(AuthBase):
 
     def __call__(self, request):
         """Attach an API token to a custom auth header."""
-        request.headers["X-TokenAuth"] = f"{self.token}"
+        request.headers["Authorization"] = f"Token {self.token}"
         # request.headers["WWW-Authenticate"] = f"{self.token}"
         return request
 
