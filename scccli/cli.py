@@ -23,6 +23,7 @@ class TokenAuth(AuthBase):
     def __call__(self, request):
         """Attach an API token to a custom auth header."""
         request.headers["X-TokenAuth"] = f"{self.token}"
+        # request.headers["WWW-Authenticate"] = f"{self.token}"
         return request
 
 
@@ -123,6 +124,8 @@ def status():
             data=data,
             auth=get_auth(),
         )
+        # Debugging print
+        rprint(f"RESPONSE HEADERS\n{response.headers}")
         results = response.json()["results"]
         # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
         results_data = [
@@ -167,7 +170,9 @@ def test_token():
             f"{SCC_API_URL}jobs/",
             auth=get_auth(),
         )
+        # debuggin print
         rprint(f"RESPONSE{response}")
+        rprint(f"RESPONSE HEADERS\n{response.headers}")
         results = response.json()["results"]
         show_length = 3
         rprint(
