@@ -130,6 +130,8 @@ def status():
             result["job_data"] for result in results if result["job_data"] != {}
         ]
         results_table = build_status_output_table(results_data)
+
+        # Usage instructions
         rprint(
             f"""YOU HAVE {len(results_data)} RESULTS
                 \n[bright_green]WHEN RESULTS DISPLAY:[/bright_green]
@@ -137,6 +139,10 @@ def status():
                 \nPress [bold cyan]Q[/bold cyan] to quit.
             """
         )
+
+        # ToDo: include option to SKIP instructions
+        # rich.prompt or console.input
+        
         # Giving user time to read instructions & an idea when they'll see results
         for increment in track(range(5), description="PREPARING TO SHOW RESULTS..."):
             time.sleep(increment)
