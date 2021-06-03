@@ -125,6 +125,7 @@ def status():
             auth=get_auth(),
         )
         # Debugging print
+        rprint(f"RESPONSE{response}")
         rprint(f"RESPONSE HEADERS\n{response.headers}")
         results = response.json()["results"]
         # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
@@ -170,7 +171,7 @@ def test_token():
             f"{SCC_API_URL}jobs/",
             auth=get_auth(),
         )
-        # debuggin print
+        # debugging print
         rprint(f"RESPONSE{response}")
         rprint(f"RESPONSE HEADERS\n{response.headers}")
         results = response.json()["results"]
