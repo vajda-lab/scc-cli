@@ -30,7 +30,6 @@ class TokenAuth(AuthBase):
 def get_auth():
 
     if SCC_API_TOKEN:
-        print("We Have A Token")
         return TokenAuth(SCC_API_TOKEN)
     elif SCC_API_USER and SCC_API_PASSWORD:
         return HTTPBasicAuth(SCC_API_USER, SCC_API_PASSWORD)
@@ -125,8 +124,6 @@ def status():
             auth=get_auth(),
         )
         # Debugging print
-        rprint(f"RESPONSE{response}")
-        rprint(f"RESPONSE HEADERS\n{response.headers}")
         results = response.json()["results"]
         # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
         results_data = [
@@ -159,21 +156,11 @@ def test_token():
     """
     data = {}
 
-    # w/o a password or token, this should fail/error
-    # export SCC_API_PASSWORD=whut?
-    # del SCC_API_TOKEN
-    # if SCC_API_TOKEN is not None:
-    #     rprint(f"SCC_API_TOKEN exists but it's a SECRET")
-    # else:
-    #     rprint(f"No Token, No Auth")
     try:
         response = requests.get(
             f"{SCC_API_URL}jobs/",
             auth=get_auth(),
         )
-        # debugging print
-        rprint(f"RESPONSE{response}")
-        rprint(f"RESPONSE HEADERS\n{response.headers}")
         results = response.json()["results"]
         show_length = 3
         rprint(
