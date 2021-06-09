@@ -1,5 +1,5 @@
-from scccli.cli import cli
+from scccli.cli import click_group
 
 
 if __name__ == "__main__":
-    cli(obj={})
+    click_group(obj={})

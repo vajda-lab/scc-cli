@@ -1,6 +1,9 @@
 import click
+import json
 import os
 import requests
+
+from pathlib import Path
 from requests.auth import AuthBase, HTTPBasicAuth
 from rich import print as rprint
 from rich.console import Console
@@ -8,10 +11,10 @@ from rich.progress import track
 from rich.table import Table
 import time
 
+SCC_API_PASSWORD = os.environ.get("SCC_API_PASSWORD")
 SCC_API_TOKEN = os.environ.get("SCC_API_TOKEN")
 SCC_API_URL = os.environ.get("SCC_API_URL", "http://ftplus.bu.edu:8000/apis/")
 SCC_API_USER = os.environ.get("SCC_API_USER")
-SCC_API_PASSWORD = os.environ.get("SCC_API_PASSWORD")
 
 
 class TokenAuth(AuthBase):
@@ -28,11 +31,19 @@ class TokenAuth(AuthBase):
 
 
 def get_auth():
+    config_file = Path(os.path.expanduser("~"), ".config", "scc-cli.json")
+    if config_file.exists():
+        config = json.loads(config_file.read_text())
+    else:
+        click.echo("message about where to go to get your access_token")
+        config = {}
 
-    if SCC_API_TOKEN:
-        return TokenAuth(SCC_API_TOKEN)
+    if SCC_API_TOKEN or config.get("SCC_API_TOKEN"):
+        return TokenAuth(SCC_API_TOKEN or config.get("SCC_API_TOKEN"))
+
     elif SCC_API_USER and SCC_API_PASSWORD:
         return HTTPBasicAuth(SCC_API_USER, SCC_API_PASSWORD)
+
     else:
         click.secho(
             "please default (SCC_API_USER and SCC_API_PASSWORD) or SCC_API_TOKEN"
@@ -41,8 +52,9 @@ def get_auth():
 
 @click.group()
 @click.option("--debug/--no-debug", default=False)
-def cli(debug):
-    click.echo("Debug mode is %s" % ("on" if debug else "off"))
+def click_group(debug):
+    # click.echo("Debug mode is %s" % ("on" if debug else "off"))
+
     if debug:
         click.echo(f"SCC_API_URL: {SCC_API_URL}")
         click.echo(f"SCC_API_USER: {SCC_API_USER}")
@@ -52,7 +64,7 @@ def cli(debug):
         click.echo("SCC_API_TOKEN is %s" % ("set" if SCC_API_TOKEN else "not set"))
 
 
-@cli.command()
+@click_group.command()
 @click.argument("job_id", type=str)
 def delete(job_id):
     """
@@ -74,6 +86,34 @@ def delete(job_id):
         click.echo(response.status_code)
     except Exception as e:
         click.secho(f"{e}", fg="red")
+
+
+@click_group.command()
+@click.argument("access_token", type=str)
+def init(access_token):
+    click.echo("Adding our token")
+
+    # find our home folder and store our config
+    config_path = Path(os.path.expanduser("~"), ".config")
+    if not config_path.exists():
+        config_path.mkdir()
+
+    config_file = config_path.joinpath("scc-cli.json")
+
+    # If our config exists, load our config
+    if config_file.exists():
+        config = json.loads(config_file.read_text())
+    else:
+        config = {}
+
+    # Add our token to the config file
+    config["SCC_API_TOKEN"] = access_token
+    config_file.write_text(json.dumps(config, indent=2))
+
+    # Update file permission so that students can't see each others tokens
+    mask = oct(os.stat(config_file).st_mode)[-3:]
+    if mask != "600":
+        config_file.chmod(0o600)
 
 
 def build_status_output_table(results_data):
@@ -108,7 +148,7 @@ def build_status_output_table(results_data):
     return table
 
 
-@cli.command()
+@click_group.command()
 def status():
     """
     Shows status of all jobs user is authorized to see
@@ -142,7 +182,7 @@ def status():
 
         # ToDo: include option to SKIP instructions
         # rich.prompt or console.input
-        
+
         # Giving user time to read instructions & an idea when they'll see results
         for increment in track(range(5), description="PREPARING TO SHOW RESULTS..."):
             time.sleep(increment)
@@ -153,7 +193,7 @@ def status():
         click.secho(f"{e}", fg="red")
 
 
-@cli.command()
+@click_group.command()
 def test_token():
     """
     Testing token auth working
@@ -169,9 +209,7 @@ def test_token():
         )
         results = response.json()["results"]
         show_length = 3
-        rprint(
-            f"YOU HAVE {len(results)} RESULTS. Showing {show_length}"
-        )
+        rprint(f"YOU HAVE {len(results)} RESULTS. Showing {show_length}")
         for result in results[:show_length]:
             rprint(result)
 
@@ -180,7 +218,7 @@ def test_token():
 
 
 # ToDo Will SCC token provide auth for Django app and user_id for submit host?
-@cli.command()
+@click_group.command()
 @click.argument("input_file", type=click.File("rb"))
 def submit(input_file):
     """
@@ -206,4 +244,4 @@ def submit(input_file):
 
 
 if __name__ == "__main__":
-    cli(obj={})
+    click_group(obj={})
