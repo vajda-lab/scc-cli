@@ -163,32 +163,34 @@ def status():
             data=data,
             auth=get_auth(),
         )
-        # Debugging print
-        results = response.json()["results"]
-        # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
-        results_data = [
-            result["job_data"] for result in results if result["job_data"] != {}
-        ]
-        results_table = build_status_output_table(results_data)
+        if response.status_code == 401:
+            rprint(f"You are not yet authorized to connect.\nPlease create an account at {SCC_API_URL} to get an access token.\nThen return here and run the 'init' command to assign that token to yourself.")
+        else:
+            results = response.json()["results"]
+            # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
+            results_data = [
+                result["job_data"] for result in results if result["job_data"] != {}
+            ]
+            results_table = build_status_output_table(results_data)
 
-        # Usage instructions
-        rprint(
-            f"""YOU HAVE {len(results_data)} RESULTS
-                \n[bright_green]WHEN RESULTS DISPLAY:[/bright_green]
-                \nPress [bold cyan]SPACE[/bold cyan] for next page of results
-                \nPress [bold cyan]Q[/bold cyan] to quit.
-            """
-        )
+            # Usage instructions
+            rprint(
+                f"""YOU HAVE {len(results_data)} RESULTS
+                    \n[bright_green]WHEN RESULTS DISPLAY:[/bright_green]
+                    \nPress [bold cyan]SPACE[/bold cyan] for next page of results
+                    \nPress [bold cyan]Q[/bold cyan] to quit.
+                """
+            )
 
-        # ToDo: include option to SKIP instructions
-        # rich.prompt or console.input
+            # ToDo: include option to SKIP instructions
+            # rich.prompt or console.input
 
-        # Giving user time to read instructions & an idea when they'll see results
-        for increment in track(range(5), description="PREPARING TO SHOW RESULTS..."):
-            time.sleep(increment)
+            # Giving user time to read instructions & an idea when they'll see results
+            for increment in track(range(5), description="PREPARING TO SHOW RESULTS..."):
+                time.sleep(increment)
 
-        with console.pager():
-            console.print(results_table)
+            with console.pager():
+                console.print(results_table)
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
 
