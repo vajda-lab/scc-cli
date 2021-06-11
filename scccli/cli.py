@@ -55,6 +55,14 @@ def get_auth():
         )
 
 
+def unauthorized_user_message():
+    """
+    A simple string that may change over time.
+    Placed here to make code a bit "dryer"
+    """
+    return f"\nCurrently, you are not authorized to connect.\nPlease create an account at {SCC_API_URL} to get an access token.\nThen return here and run the 'init' command to assign that token to yourself."
+
+
 @click.group()
 @click.option("--debug/--no-debug", default=False)
 def click_group(debug):
@@ -88,7 +96,9 @@ def delete(job_id):
             data=data,
             auth=get_auth(),
         )
-        click.echo(response.status_code)
+        if response.status_code == 401:
+            rprint(unauthorized_user_message())
+        logger.debug(response.status_code)
     except Exception as e:
         click.secho(f"{e}", fg="red")
 
@@ -169,7 +179,7 @@ def status():
             auth=get_auth(),
         )
         if response.status_code == 401:
-            rprint(f"You are not yet authorized to connect.\nPlease create an account at {SCC_API_URL} to get an access token.\nThen return here and run the 'init' command to assign that token to yourself.")
+            rprint(unauthorized_user_message())
         else:
             results = response.json()["results"]
             # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
@@ -242,6 +252,10 @@ def submit(input_file):
             data=data,
             files=files,
         )
+        if response.status_code == 401:
+            rprint(unauthorized_user_message())
+        else:
+            click.echo("Submitted")
         logger.debug(response.status_code)
         logger.debug(response)
         logger.debug(response.text)
