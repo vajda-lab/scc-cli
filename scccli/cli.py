@@ -1,4 +1,5 @@
 import click
+import logging
 import json
 import os
 import requests
@@ -10,6 +11,10 @@ from rich.console import Console
 from rich.progress import track
 from rich.table import Table
 import time
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 SCC_API_PASSWORD = os.environ.get("SCC_API_PASSWORD")
 SCC_API_TOKEN = os.environ.get("SCC_API_TOKEN")
@@ -237,9 +242,9 @@ def submit(input_file):
             data=data,
             files=files,
         )
-        print(response.status_code)
-        print(response)
-        print(response.text)
+        logger.debug(response.status_code)
+        logger.debug(response)
+        logger.debug(response.text)
 
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
