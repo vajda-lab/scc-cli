@@ -40,7 +40,7 @@ def get_auth():
     if config_file.exists():
         config = json.loads(config_file.read_text())
     else:
-        rprint(f"Please create an account at {SCC_API_URL} to get an access token.\nThen return here and run the 'init' command to assign that token to yourself.")
+        rprint(f"Your authorization token is not properly configured.\nPlease create an account at {SCC_API_URL} to get an access token.\nThen return here and run the 'init' command to assign that token to yourself.")
         config = {}
 
     if SCC_API_TOKEN or config.get("SCC_API_TOKEN"):
