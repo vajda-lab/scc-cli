@@ -40,7 +40,9 @@ def get_auth():
     if config_file.exists():
         config = json.loads(config_file.read_text())
     else:
-        rprint(f"Your authorization token is not properly configured.\nPlease create an account at {SCC_API_URL} to get an access token.\nThen return here and run the 'init' command to assign that token to yourself.")
+        rprint(
+            f"Your authorization token is not properly configured.\nPlease create an account at {SCC_API_URL} to get an access token.\nThen return here and run the 'init' command to assign that token to yourself."
+        )
         config = {}
 
     if SCC_API_TOKEN or config.get("SCC_API_TOKEN"):
@@ -201,7 +203,9 @@ def status():
             # rich.prompt or console.input
 
             # Giving user time to read instructions & an idea when they'll see results
-            for increment in track(range(5), description="PREPARING TO SHOW RESULTS..."):
+            for increment in track(
+                range(5), description="PREPARING TO SHOW RESULTS..."
+            ):
                 time.sleep(increment)
 
             with console.pager():
