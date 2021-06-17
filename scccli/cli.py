@@ -210,30 +210,6 @@ def status():
         click.secho(f"{e}", fg="red")
 
 
-# @click_group.command()
-# def test_token():
-#     """
-#     Testing token auth working
-#     Prettier than curl
-#     Kojo practicing Click
-#     """
-#     data = {}
-
-#     try:
-#         response = requests.get(
-#             f"{SCC_API_URL}jobs/",
-#             auth=get_auth(),
-#         )
-#         results = response.json()["results"]
-#         show_length = 3
-#         rprint(f"YOU HAVE {len(results)} RESULTS. Showing {show_length}")
-#         for result in results[:show_length]:
-#             rprint(result)
-
-#     except requests.exceptions.ConnectionError as e:
-#         click.secho(f"{e}", fg="red")
-
-
 # ToDo Will SCC token provide auth for Django app and user_id for submit host?
 @click_group.command()
 @click.argument("input_file", type=click.File("rb"))
