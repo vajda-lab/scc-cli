@@ -8,7 +8,6 @@ from pathlib import Path
 from requests.auth import AuthBase, HTTPBasicAuth
 from rich import print as rprint
 from rich.console import Console
-from rich.progress import track
 from rich.table import Table
 import time
 
@@ -199,14 +198,7 @@ def status():
                 """
             )
 
-            # ToDo: include option to SKIP instructions
-            # rich.prompt or console.input
-
-            # Giving user time to read instructions & an idea when they'll see results
-            for increment in track(
-                range(5), description="PREPARING TO SHOW RESULTS..."
-            ):
-                time.sleep(increment)
+            console.input("[bright_green]To SKIP INSTRUCTIONS[/bright_green] and go straight to your results:\nPress [bold cyan]Enter/Return[/bold cyan]: ")
 
             with console.pager():
                 console.print(results_table)
