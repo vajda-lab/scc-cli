@@ -167,7 +167,8 @@ def build_status_output_table(results_data):
 
 
 @click_group.command()
-def status():
+@click.argument("job_id", type=str, required=False)
+def status(job_id):
     """
     Shows status of all jobs user is authorized to see
     Draws data from Django app
@@ -175,6 +176,10 @@ def status():
     """
     data = {}
     console = Console()
+
+    # TODO: key off of <job_id> to show either a list of jobs or the
+    # information for a particular job's details.
+
     try:
         response = requests.get(
             f"{SCC_API_URL}jobs/",
