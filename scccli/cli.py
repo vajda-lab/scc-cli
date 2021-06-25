@@ -138,6 +138,7 @@ def build_status_output_table(results_data):
     Return Rich.Table to be paginated in status() command
     """
     table = Table(title="QSTAT Results")
+    table.add_column("q_status")
     table.add_column("job-ID")
     table.add_column("prior")
     table.add_column("name")
@@ -150,13 +151,14 @@ def build_status_output_table(results_data):
 
     for result in results_data:
         table.add_row(
-            result["job-ID"],
-            result["prior"],
-            result["name"],
-            result["user"],
-            result["state"],
-            result["submit-start-at"],
-            result["queue"],
+            result.get("status"),
+            result.get("job-ID"),
+            result.get("prior"),
+            result.get("name"),
+            str(result.get("user")),
+            result.get("state"),
+            result.get("submit-start-at"),
+            result.get("queue"),
             result.get("slots"),
             result.get("ja-task-ID"),
         )
@@ -183,10 +185,19 @@ def status():
             rprint(unauthorized_user_message())
         else:
             results = response.json()["results"]
+            # rprint(f"RESULTS{results}")
             # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
-            results_data = [
-                result["job_data"] for result in results if result["job_data"] != {}
-            ]
+            # results_data = [
+            #     dict(result.items() | result["job_data"].items()) for result in results
+            # ]
+            # for result in results_data:
+            #     rprint(f"RESULTS_DATA: {result}")
+            results_data = []
+            for result in results:
+                item = result.copy()
+                item.update(**result["job_data"])
+                # rprint(item)
+                results_data.append(item)
             results_table = build_status_output_table(results_data)
 
             # Usage instructions
