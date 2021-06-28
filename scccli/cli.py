@@ -221,7 +221,9 @@ def status(job_id):
                 """
             )
 
-            console.input("[bright_green]To SKIP INSTRUCTIONS[/bright_green] and go straight to your results:\nPress [bold cyan]Enter/Return[/bold cyan]: ")
+            console.input(
+                "[bright_green]To SKIP INSTRUCTIONS[/bright_green] and go straight to your results:\nPress [bold cyan]Enter/Return[/bold cyan]: "
+            )
 
             with console.pager():
                 console.print(results_table)
