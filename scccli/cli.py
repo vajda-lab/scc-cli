@@ -167,7 +167,8 @@ def build_status_output_table(results_data):
 
 
 @click_group.command()
-@click.argument("job_id", type=str, required=False)
+@click.option("--job_id", "-j", type=str, required=False)
+# @click.option("--uuid", type=str, required=False)
 def status(job_id):
     """
     Shows status of all jobs user is authorized to see
@@ -180,7 +181,13 @@ def status(job_id):
     # TODO: key off of <job_id> to show either a list of jobs or the
     # information for a particular job's details.
 
+    # TODO: key off of <uuid> possibly so we can delete jobs before
+    # they get to the grid engine.
+
     try:
+        # if job_id:
+        #     pass
+        # else:
         response = requests.get(
             f"{SCC_API_URL}jobs/",
             data=data,
