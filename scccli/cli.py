@@ -195,9 +195,16 @@ def status(job_id):
                 rprint(unauthorized_user_message())
             else:
                 results = response.json()["results"]
-                for result in results:
-                    if result["sge_task_id"] == int(job_id):
-                        rprint(result)
+                matched_result = [
+                    result["job_data"]
+                    for result in results
+                    if result["sge_task_id"] == int(job_id)
+                ]
+                # for result in results:
+                #     if result["sge_task_id"] == int(job_id):
+                #         rprint(result["job_data"])
+                #     else:
+                #         rprint("No matching result found.")
         # No specific job id entered: show all results
         else:
             response = requests.get(
