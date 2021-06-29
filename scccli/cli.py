@@ -167,7 +167,7 @@ def build_status_output_table(results_data):
 
 
 @click_group.command()
-@click.option("--job_id", "-j", type=str, required=False)
+@click.option("--job_id", "-j", type=int, required=False)
 @click.option("--uuid", type=str, required=False)
 def status(job_id, uuid):
     """
@@ -192,7 +192,7 @@ def status(job_id, uuid):
                 matched_result = [
                     result["job_data"]
                     for result in results
-                    if result["sge_task_id"] == int(job_id)
+                    if result["sge_task_id"] == job_id
                 ]
             # Explicit no result message
             if len(matched_result) > 0:
