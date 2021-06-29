@@ -185,48 +185,60 @@ def status(job_id):
     # they get to the grid engine.
 
     try:
-        # if job_id:
-        #     pass
-        # else:
-        response = requests.get(
-            f"{SCC_API_URL}jobs/",
-            data=data,
-            auth=get_auth(),
-        )
-        if response.status_code == 401:
-            rprint(unauthorized_user_message())
+        if job_id:
+            response = requests.get(
+                f"{SCC_API_URL}jobs/",
+                data=data,
+                auth=get_auth(),
+            )
+            if response.status_code == 401:
+                rprint(unauthorized_user_message())
+            else:
+                results = response.json()["results"]
+                for result in results:
+                    if result["sge_task_id"] == int(job_id):
+                        rprint(result)
+        # No specific job id entered: show all results
         else:
-            results = response.json()["results"]
-            # rprint(f"RESULTS{results}")
-            # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
-            # results_data = [
-            #     dict(result.items() | result["job_data"].items()) for result in results
-            # ]
-            # for result in results_data:
-            #     rprint(f"RESULTS_DATA: {result}")
-            results_data = []
-            for result in results:
-                item = result.copy()
-                item.update(**result["job_data"])
-                # rprint(item)
-                results_data.append(item)
-            results_table = build_status_output_table(results_data)
-
-            # Usage instructions
-            rprint(
-                f"""YOU HAVE {len(results_data)} RESULTS
-                    \n[bright_green]WHEN RESULTS DISPLAY:[/bright_green]
-                    \nPress [bold cyan]SPACE[/bold cyan] for next page of results
-                    \nPress [bold cyan]Q[/bold cyan] to quit.
-                """
+            response = requests.get(
+                f"{SCC_API_URL}jobs/",
+                data=data,
+                auth=get_auth(),
             )
+            if response.status_code == 401:
+                rprint(unauthorized_user_message())
+            else:
+                results = response.json()["results"]
+                # rprint(f"RESULTS{results}")
+                # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
+                # results_data = [
+                #     dict(result.items() | result["job_data"].items()) for result in results
+                # ]
+                # for result in results_data:
+                #     rprint(f"RESULTS_DATA: {result}")
+                results_data = []
+                for result in results:
+                    item = result.copy()
+                    item.update(**result["job_data"])
+                    # rprint(item)
+                    results_data.append(item)
+                results_table = build_status_output_table(results_data)
 
-            console.input(
-                "[bright_green]To SKIP INSTRUCTIONS[/bright_green] and go straight to your results:\nPress [bold cyan]Enter/Return[/bold cyan]: "
-            )
+                # Usage instructions
+                rprint(
+                    f"""YOU HAVE {len(results_data)} RESULTS
+                        \n[bright_green]WHEN RESULTS DISPLAY:[/bright_green]
+                        \nPress [bold cyan]SPACE[/bold cyan] for next page of results
+                        \nPress [bold cyan]Q[/bold cyan] to quit.
+                    """
+                )
 
-            with console.pager():
-                console.print(results_table)
+                console.input(
+                    "[bright_green]To SKIP INSTRUCTIONS[/bright_green] and go straight to your results:\nPress [bold cyan]Enter/Return[/bold cyan]: "
+                )
+
+                with console.pager():
+                    console.print(results_table)
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
 
