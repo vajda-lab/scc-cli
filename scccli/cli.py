@@ -181,7 +181,8 @@ def status(job_id, uuid):
     try:
         if job_id:
             response = requests.get(
-                f"{SCC_API_URL}jobs/",
+                # f"{SCC_API_URL}jobs/",
+                f"{SCC_API_URL}jobs?sge_task_id={job_id}",
                 data=data,
                 auth=get_auth(),
             )
@@ -189,6 +190,7 @@ def status(job_id, uuid):
                 rprint(unauthorized_user_message())
             else:
                 results = response.json()["results"]
+                rprint(f"THERE ARE: {len(results)} RESULTS")
                 matched_result = [
                     result["job_data"]
                     for result in results
