@@ -200,6 +200,11 @@ def status(job_id):
                     for result in results
                     if result["sge_task_id"] == int(job_id)
                 ]
+            # Explicit no result message
+            if len(matched_result) > 0:
+                rprint(matched_result[0])
+            else:
+                rprint("[red]No matching result found[/red]")
                 # for result in results:
                 #     if result["sge_task_id"] == int(job_id):
                 #         rprint(result["job_data"])
