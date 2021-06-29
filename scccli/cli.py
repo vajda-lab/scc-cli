@@ -280,6 +280,8 @@ def submit(input_file):
         logger.debug(response.status_code)
         logger.debug(response)
         logger.debug(response.text)
+        uuid = response.json()["uuid"]
+        rprint(f"Job UUID: {uuid}")
 
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
