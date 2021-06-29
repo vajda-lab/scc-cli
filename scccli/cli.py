@@ -225,7 +225,7 @@ def status(job_id, uuid):
                 for result in results:
                     item = result.copy()
                     item.update(**result["job_data"])
-                    # rprint(item)
+                    logger.debug(item)
                     results_data.append(item)
                 results_table = build_status_output_table(results_data)
 
