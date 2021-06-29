@@ -199,11 +199,6 @@ def status(job_id, uuid):
                 rprint(matched_result[0])
             else:
                 rprint("[red]No matching result found[/red]")
-                # for result in results:
-                #     if result["sge_task_id"] == int(job_id):
-                #         rprint(result["job_data"])
-                #     else:
-                #         rprint("No matching result found.")
         elif uuid:
             response = requests.get(
                 f"{SCC_API_URL}jobs/{uuid}",
@@ -226,13 +221,6 @@ def status(job_id, uuid):
                 rprint(unauthorized_user_message())
             else:
                 results = response.json()["results"]
-                # rprint(f"RESULTS{results}")
-                # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
-                # results_data = [
-                #     dict(result.items() | result["job_data"].items()) for result in results
-                # ]
-                # for result in results_data:
-                #     rprint(f"RESULTS_DATA: {result}")
                 results_data = []
                 for result in results:
                     item = result.copy()
