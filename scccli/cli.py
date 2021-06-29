@@ -168,8 +168,8 @@ def build_status_output_table(results_data):
 
 @click_group.command()
 @click.option("--job_id", "-j", type=str, required=False)
-# @click.option("--uuid", type=str, required=False)
-def status(job_id):
+@click.option("--uuid", type=str, required=False)
+def status(job_id, uuid):
     """
     Shows status of all jobs user is authorized to see
     Draws data from Django app
@@ -210,7 +210,18 @@ def status(job_id):
                 #         rprint(result["job_data"])
                 #     else:
                 #         rprint("No matching result found.")
-        # No specific job id entered: show all results
+        elif uuid:
+            response = requests.get(
+                f"{SCC_API_URL}jobs/{uuid}",
+                data=data,
+                auth=get_auth(),
+            )
+            if response.status_code == 401:
+                rprint(unauthorized_user_message())
+            else:
+                results = response.json()
+                rprint("\nIf [cyan]status[/cyan] = queued [bold]and[/bold] [cyan]job_data[/cyan] = {}, this job hasn't been sent to the SCC yet.")
+                rprint(results)
         else:
             response = requests.get(
                 f"{SCC_API_URL}jobs/",
