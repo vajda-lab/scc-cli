@@ -178,12 +178,6 @@ def status(job_id, uuid):
     data = {}
     console = Console()
 
-    # TODO: key off of <job_id> to show either a list of jobs or the
-    # information for a particular job's details.
-
-    # TODO: key off of <uuid> possibly so we can delete jobs before
-    # they get to the grid engine.
-
     try:
         if job_id:
             response = requests.get(
