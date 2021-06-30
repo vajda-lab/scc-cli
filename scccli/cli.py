@@ -29,19 +29,11 @@ class TokenAuth(AuthBase):
     def __call__(self, request):
         """Attach an API token to a custom auth header."""
         request.headers["Authorization"] = f"Token {self.token}"
-        # request.headers["WWW-Authenticate"] = f"{self.token}"
         return request
 
 
 def get_auth():
-    config_file = Path(os.path.expanduser("~"), ".config", "scc-cli.json")
-    if config_file.exists():
-        config = json.loads(config_file.read_text())
-    else:
-        rprint(
-            f"Your authorization token is not properly configured.\nPlease create an account at {SCC_API_URL} to get an access token.\nThen return here and run the 'init' command to assign that token to yourself."
-        )
-        config = {}
+    config = get_config_file()
 
     if SCC_API_TOKEN or config.get("SCC_API_TOKEN"):
         return TokenAuth(SCC_API_TOKEN or config.get("SCC_API_TOKEN"))
@@ -51,8 +43,52 @@ def get_auth():
 
     else:
         click.secho(
-            "please default (SCC_API_USER and SCC_API_PASSWORD) or SCC_API_TOKEN"
+            "please set a default SCC_API_TOKEN or (SCC_API_USER and SCC_API_PASSWORD)"
         )
+
+
+def get_config_file():
+    config_path = Path(os.path.expanduser("~"), ".config")
+    if not config_path.exists():
+        config_path.mkdir()
+
+    config_file = config_path.joinpath("scc-cli.json")
+    if config_file.exists():
+        config = json.loads(config_file.read_text())
+    else:
+        rprint(
+            "Your authorization token is not properly configured.\n"
+            f"Please create an account at {SCC_API_URL} to get an access token.\n"
+            "Then return here and run the 'init' command to assign that token to yourself."
+        )
+        config = {}
+    return config
+
+
+def write_config_file():
+    config_path = get_config_file()
+
+    # find our home folder and store our config
+    config_path = Path(os.path.expanduser("~"), ".config")
+    if not config_path.exists():
+        config_path.mkdir()
+
+    config_file = config_path.joinpath("scc-cli.json")
+
+    # If our config exists, load our config
+    if config_file.exists():
+        config = json.loads(config_file.read_text())
+    else:
+        config = {}
+
+    # Add our token to the config file
+    config["SCC_API_TOKEN"] = access_token
+    config_file.write_text(json.dumps(config, indent=2))
+
+    # Update file permission so that students can't see each others tokens
+    mask = oct(os.stat(config_file).st_mode)[-3:]
+    if mask != "600":
+        config_file.chmod(0o600)
 
 
 def unauthorized_user_message():
@@ -69,16 +105,41 @@ def unauthorized_user_message():
 
 @click.group()
 @click.option("--debug/--no-debug", default=False)
-def click_group(debug):
+@click.option("--dev/--no-dev", default=False)
+def click_group(debug, dev):
     # click.echo("Debug mode is %s" % ("on" if debug else "off"))
 
     if debug:
-        click.echo(f"SCC_API_URL: {SCC_API_URL}")
-        click.echo(f"SCC_API_USER: {SCC_API_USER}")
         click.echo(
-            "SCC_API_PASSWORD is %s" % ("set" if SCC_API_PASSWORD else "not set")
+            "SCC_API_URL is {}".format(SCC_API_URL if SCC_API_URL else "not set")
         )
-        click.echo("SCC_API_TOKEN is %s" % ("set" if SCC_API_TOKEN else "not set"))
+        click.echo(
+            "SCC_API_USER is {}".format(SCC_API_USER if SCC_API_USER else "not set")
+        )
+        click.echo(
+            "SCC_API_PASSWORD is {}".format("set" if SCC_API_PASSWORD else "not set")
+        )
+        click.echo("SCC_API_TOKEN is {}".format("set" if SCC_API_TOKEN else "not set"))
+
+
+@click_group.command()
+@click.argument("command", type=click.Choice(["get", "set"], case_sensitive=False))
+@click.argument("key", type=str)
+@click.argument("value", type=str, required=False)
+def config(command, key, value):
+    click.echo(f"config::{command}")
+
+    if command.lower() == "get":
+        config_values = get_config_file()
+        if key in config_values:
+            print(config_values[key])
+    elif command.lower() == "set":
+        if not value:
+            raise click.BadParameter("value is required")
+
+        config_values = get_config_file()
+        if key in config_values:
+            print(config_values[key])
 
 
 @click_group.command()
