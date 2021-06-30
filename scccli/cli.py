@@ -60,7 +60,11 @@ def unauthorized_user_message():
     A simple string that may change over time.
     Placed here to make code a bit "dryer"
     """
-    return f"\nCurrently, you are not authorized to connect.\nPlease create an account at {SCC_API_URL} to get an access token.\nThen return here and run the 'init' command to assign that token to yourself."
+    return (
+        "\nCurrently, you are not authorized to connect.\n"
+        f"Please create an account at {SCC_API_URL} to get an access token.\n"
+        "Then return here and run the 'init' command to assign that token to yourself.\n"
+    )
 
 
 @click.group()
