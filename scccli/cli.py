@@ -167,9 +167,9 @@ def build_status_output_table(results_data):
 
 
 @click_group.command()
-@click.option("--job_id", "-j", type=str, required=False)
-# @click.option("--uuid", type=str, required=False)
-def status(job_id):
+@click.option("--job_id", "-j", type=int, required=False)
+@click.option("--uuid", type=str, required=False)
+def status(job_id, uuid):
     """
     Shows status of all jobs user is authorized to see
     Draws data from Django app
@@ -178,55 +178,74 @@ def status(job_id):
     data = {}
     console = Console()
 
-    # TODO: key off of <job_id> to show either a list of jobs or the
-    # information for a particular job's details.
-
-    # TODO: key off of <uuid> possibly so we can delete jobs before
-    # they get to the grid engine.
-
     try:
-        # if job_id:
-        #     pass
-        # else:
-        response = requests.get(
-            f"{SCC_API_URL}jobs/",
-            data=data,
-            auth=get_auth(),
-        )
-        if response.status_code == 401:
-            rprint(unauthorized_user_message())
+        if job_id:
+            response = requests.get(
+                # f"{SCC_API_URL}jobs/",
+                f"{SCC_API_URL}jobs?sge_task_id={job_id}",
+                data=data,
+                auth=get_auth(),
+            )
+            if response.status_code == 401:
+                rprint(unauthorized_user_message())
+            else:
+                results = response.json()["results"]
+                rprint(f"THERE ARE: {len(results)} RESULTS")
+                matched_result = [
+                    result["job_data"]
+                    for result in results
+                    if result["sge_task_id"] == job_id
+                ]
+            # Explicit no result message
+            if len(matched_result) > 0:
+                rprint(matched_result[0])
+            else:
+                rprint("[red]No matching result found[/red]")
+        elif uuid:
+            response = requests.get(
+                f"{SCC_API_URL}jobs/{uuid}",
+                data=data,
+                auth=get_auth(),
+            )
+            if response.status_code == 401:
+                rprint(unauthorized_user_message())
+            else:
+                results = response.json()
+                rprint("\nIf [cyan]status[/cyan] = queued [bold]and[/bold] [cyan]job_data[/cyan] = {}, this job hasn't been sent to the SCC yet.")
+                rprint(results)
         else:
-            results = response.json()["results"]
-            # rprint(f"RESULTS{results}")
-            # Everything the CLI user wants is in Job.job_data; if it's empty, ignore it
-            # results_data = [
-            #     dict(result.items() | result["job_data"].items()) for result in results
-            # ]
-            # for result in results_data:
-            #     rprint(f"RESULTS_DATA: {result}")
-            results_data = []
-            for result in results:
-                item = result.copy()
-                item.update(**result["job_data"])
-                # rprint(item)
-                results_data.append(item)
-            results_table = build_status_output_table(results_data)
-
-            # Usage instructions
-            rprint(
-                f"""YOU HAVE {len(results_data)} RESULTS
-                    \n[bright_green]WHEN RESULTS DISPLAY:[/bright_green]
-                    \nPress [bold cyan]SPACE[/bold cyan] for next page of results
-                    \nPress [bold cyan]Q[/bold cyan] to quit.
-                """
+            response = requests.get(
+                f"{SCC_API_URL}jobs/",
+                data=data,
+                auth=get_auth(),
             )
+            if response.status_code == 401:
+                rprint(unauthorized_user_message())
+            else:
+                results = response.json()["results"]
+                results_data = []
+                for result in results:
+                    item = result.copy()
+                    item.update(**result["job_data"])
+                    logger.debug(item)
+                    results_data.append(item)
+                results_table = build_status_output_table(results_data)
 
-            console.input(
-                "[bright_green]To SKIP INSTRUCTIONS[/bright_green] and go straight to your results:\nPress [bold cyan]Enter/Return[/bold cyan]: "
-            )
+                # Usage instructions
+                rprint(
+                    f"""YOU HAVE {len(results_data)} RESULTS
+                        \n[bright_green]WHEN RESULTS DISPLAY:[/bright_green]
+                        \nPress [bold cyan]SPACE[/bold cyan] for next page of results
+                        \nPress [bold cyan]Q[/bold cyan] to quit.
+                    """
+                )
 
-            with console.pager():
-                console.print(results_table)
+                console.input(
+                    "[bright_green]To SKIP INSTRUCTIONS[/bright_green] and go straight to your results:\nPress [bold cyan]Enter/Return[/bold cyan]: "
+                )
+
+                with console.pager():
+                    console.print(results_table)
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
 
@@ -256,6 +275,8 @@ def submit(input_file):
         logger.debug(response.status_code)
         logger.debug(response)
         logger.debug(response.text)
+        uuid = response.json()["uuid"]
+        rprint(f"Submitted job UUID: {uuid}")
 
     except requests.exceptions.ConnectionError as e:
         click.secho(f"{e}", fg="red")
