@@ -198,6 +198,7 @@ def status(job_id, uuid):
                 ]
             # Explicit no result message
             if len(matched_result) > 0:
+                # rprint(type(matched_result))
                 rprint(matched_result[0])
             else:
                 rprint("[red]No matching result found[/red]")
