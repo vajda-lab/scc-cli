@@ -35,3 +35,12 @@
 @fmt:
     black .
     pyup-dirs .
+
+@bump:
+    bumpver update --dry
+
+@pip-compile:
+    pip install --upgrade -r ./requirements.in
+    rm -f ./requirements.txt
+    pip-compile ./requirements.in \
+        --output-file ./requirements.txt

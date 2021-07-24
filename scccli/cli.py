@@ -10,9 +10,12 @@ from rich import print as rprint
 from rich.console import Console
 from rich.table import Table
 
+from .__version__ import __version__
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
 
 SCC_API_PASSWORD = os.environ.get("SCC_API_PASSWORD")
 SCC_API_TOKEN = os.environ.get("SCC_API_TOKEN")
@@ -106,6 +109,7 @@ def unauthorized_user_message():
 @click.group()
 @click.option("--debug/--no-debug", default=False)
 @click.option("--dev/--no-dev", default=False)
+@click.version_option(__version__)
 def click_group(debug, dev):
     # click.echo("Debug mode is %s" % ("on" if debug else "off"))
 
