@@ -16,7 +16,7 @@ logger.setLevel(logging.DEBUG)
 
 SCC_API_PASSWORD = os.environ.get("SCC_API_PASSWORD")
 SCC_API_TOKEN = os.environ.get("SCC_API_TOKEN")
-SCC_API_URL = os.environ.get("SCC_API_URL", "http://ftplus.bu.edu:8000/apis/")
+SCC_API_URL = os.environ.get("SCC_API_URL", "https://ftplus-dev.bu.edu/apis/")
 SCC_API_USER = os.environ.get("SCC_API_USER")
 
 
