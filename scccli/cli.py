@@ -276,7 +276,9 @@ def status(job_id, uuid):
                 rprint(unauthorized_user_message())
             else:
                 results = response.json()
-                rprint("\nIf [cyan]status[/cyan] = queued [bold]and[/bold] [cyan]job_data[/cyan] = {}, this job hasn't been sent to the SCC yet.")
+                rprint(
+                    "\nIf [cyan]status[/cyan] = queued [bold]and[/bold] [cyan]job_data[/cyan] = {}, this job hasn't been sent to the SCC yet."
+                )
                 rprint(results)
         else:
             response = requests.get(
