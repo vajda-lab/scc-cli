@@ -37,7 +37,7 @@
     pyup-dirs .
 
 @bump:
-    bumpver update --dry
+    bumpver update
 
 @pip-compile:
     pip install --upgrade -r ./requirements.in
