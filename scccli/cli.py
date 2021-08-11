@@ -321,7 +321,6 @@ def status(job_id, uuid):
         click.secho(f"{e}", fg="red")
 
 
-# ToDo Will SCC token provide auth for Django app and user_id for submit host?
 @click_group.command()
 @click.argument("input_file", type=click.File("rb"))
 def submit(input_file):
