@@ -3,6 +3,10 @@
 ## Install 
 
 ```shell
+# when the project is private
+$ pip install https://github.com/vajda-lab/scc-cli
+
+# when the library is on pypi
 $ pip install vajadalab-scc-cli
 ```
 
