@@ -13,13 +13,14 @@ $ pip install vajadalab-scc-cli
 ## Usage
 
 ```shell
-$ scc-cli --help
+$ scccli --help
 ```
 
 ## Setup
 
-First register an account and login to get your access token.
+First register an account at the SCC_API_URL provided.
+Then, login to get your access token.
 
 ```shell
-$ scc-cli init <access token>
+$ scccli init <access token>
 ```

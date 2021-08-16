@@ -175,6 +175,11 @@ def delete(job_id):
 @click_group.command()
 @click.argument("access_token", type=str)
 def init(access_token):
+    """
+        Requires access token provided when an account is created at the SCC_API_URL value provided.
+
+        scccli init {access_token}
+    """
     click.echo("Adding our token")
 
     # find our home folder and store our config
@@ -326,6 +331,7 @@ def status(job_id, uuid):
 def submit(input_file):
     """
     Takes compressed input TAR file, creates job in Django app
+
     Submission to SCC is handled by scheduled_allocate_job Celery task
     """
     files = {"input_file": input_file}
